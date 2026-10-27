@@ -12,8 +12,8 @@ Entrega 1 · Machine Learning · Projeto Final
 | Campo | Preenchimento |
 |---|---|
 | **Projeto** | Respira |
-| **Repositório** | https://github.com/`<usuario>`/modelo-machinelearning <!-- PREENCHER --> |
-| **Integrantes** | <!-- PREENCHER: 3 a 4 nomes --> |
+| **Repositório** | https://github.com/BorgesJPBD/modelo-machinelearning |
+| **Integrantes** | João Pedro Borges · Gustavo Olivera · Hideki · Matheus Costa |
 
 ---
 
@@ -26,7 +26,7 @@ Entrega 1 · Machine Learning · Projeto Final
 | **Tipo e alvo** | **regressão** · alvo: `Anxiety Level (1-10)`, escala contínua de 1 a 10 · média 3,93 |
 | **Dataset** | Kaggle *Social Anxiety Dataset* · 11.000 linhas × 19 colunas · **CC0 domínio público** · zero nulos, zero duplicadas |
 | **Métrica** | **MAE** em pontos da escala: diz direto "o modelo erra X ponto", que é o que o usuário entende |
-| **Baseline** | prever a média: MAE 1,605 · linear só com estresse: MAE 1,221 · **modelo: MAE 0,811** |
+| **Baseline** | prever a média: MAE 1,605 · linear só com estresse: MAE 1,221 · **modelo: MAE 0,818** |
 | **Riscos** | dado sintético (modelo aprende o gerador, não a ansiedade); terapia e medicação são consequência, não causa |
 
 ---
@@ -82,11 +82,11 @@ Todas as 18 entradas passam no teste do formulário: são respostas que a própr
 | **B1** — copiar o nível de estresse | 2,357 | 2,959 | −0,890 |
 | **B2** — regressão linear só com estresse | **1,221** | 1,616 | 0,436 |
 | Regressão linear completa | 0,892 | 1,126 | 0,726 |
-| Gradient boosting | **0,811** | 1,007 | **0,781** |
+| Gradient boosting | **0,818** | 1,012 | **0,779** |
 
 *Divisão treino/teste 80/20, semente fixa. Treino: 8.800 · Teste: 2.200.*
 
-**Resultado:** o melhor baseline é o B2, com MAE 1,221. O modelo chega a 0,811, uma **redução de 0,41 ponto** no erro.
+**Resultado:** o melhor baseline é o B2, com MAE 1,221. O modelo chega a 0,818, uma **redução de 0,40 ponto** no erro.
 
 **B1 falha de um jeito informativo.** A hipótese preguiçosa "ansiedade é a mesma coisa que estresse" fica **pior que prever a média** (R² negativo): as duas escalas vão de 1 a 10, mas têm médias diferentes, então copiar o valor erra por deslocamento. É por isso que o B2 existe — ele é o mesmo sinal, só que calibrado.
 
@@ -114,7 +114,7 @@ tonturas, terapia, remédio                               aviso: procure um prof
 ## 6. Riscos e limitações
 
 - **O dado é sintético.** Zero nulos, zero duplicadas e nenhum valor impossível em 11 mil linhas não ocorre em pesquisa real. O modelo aprende as regras do gerador, não a ansiedade humana. Nenhuma conclusão daqui vale como achado clínico — mas a modelagem, a validação e a análise de erro são exatamente as mesmas.
-- **Causalidade reversa:** terapia e medicação aparecem associadas a ansiedade mais alta porque quem as usa já é ansioso. São consequência, não causa, e por isso não podem ser lidas como fatores de risco. Removendo as duas, o MAE sobe só de 0,811 para 0,828 — o modelo quase não depende delas.
+- **Causalidade reversa:** terapia e medicação aparecem associadas a ansiedade mais alta porque quem as usa já é ansioso. São consequência, não causa, e por isso não podem ser lidas como fatores de risco. Removendo as duas, o MAE sobe só de 0,818 para 0,828 — o modelo quase não depende delas.
 - **O alvo é autorreferido** e correlacionado ao estresse, que também é autorreferido. Parte do que o modelo captura pode ser o jeito de a pessoa responder, não o estado dela.
 - **Notas altas são raras** (8 a 10 somam ~9% dos casos), então o modelo tende a errar mais justamente nos casos mais graves — o oposto do desejável.
 
@@ -130,4 +130,4 @@ jupyter notebook notebooks/00_primeiro_contato.ipynb
 
 No Colab não precisa instalar nada: a célula de carga abre o botão de upload.
 
-**Fonte:** natezhang123. *Social Anxiety Dataset*. Kaggle. Licença CC0 1.0. Acesso em 26/10/2026. # modelo-machinelearning
+**Fonte:** natezhang123. *Social Anxiety Dataset*. Kaggle. Licença CC0 1.0. Acesso em 26/10/2026.
