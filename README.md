@@ -90,7 +90,7 @@ Todas as 18 entradas passam no teste do formulário: são respostas que a própr
 
 **B1 falha de um jeito informativo.** A hipótese preguiçosa "ansiedade é a mesma coisa que estresse" fica **pior que prever a média** (R² negativo): as duas escalas vão de 1 a 10, mas têm médias diferentes, então copiar o valor erra por deslocamento. É por isso que o B2 existe — ele é o mesmo sinal, só que calibrado.
 
-**Validação:** divisão estratificada 80/20 com semente fixa. Na E2, validação cruzada em 5 partições para medir a variância do resultado.
+**Validação:** divisão 80/20 com semente fixa (`random_state=42`); sem estratificação, porque o alvo é contínuo. Na E2, o teste de sanidade usa validação cruzada em 5 partições no treino, e o teste continua trancado.
 
 ---
 
@@ -164,39 +164,41 @@ No Colab não precisa instalar nada: a célula de carga abre o botão de upload.
 
 | Coluna | Tipo | Achado na EDA | Decisão | Onde |
 |---|---|---|---|---|
-| Age | numérica | sem nulos; dentro de 0–120 | >120 vira NaN; mediana + StandardScaler | limpar + pipeline |
-| Gender | nominal (3) | Male, Female, Other | padronizar texto; moda + one-hot, ignore | limpar + pipeline |
-| Occupation | nominal (13) | 13 profissões | padronizar texto; moda + one-hot, ignore | limpar + pipeline |
-| Sleep Hours | numérica | r negativa com o alvo | limite 0–24; mediana + StandardScaler | limpar + pipeline |
-| Physical Activity (hrs/week) | numérica | r negativa fraca | limite de domínio; mediana + StandardScaler | limpar + pipeline |
-| Caffeine Intake (mg/day) | numérica | escala em centenas; r positiva | limite de domínio; mediana + StandardScaler | limpar + pipeline |
-| Alcohol Consumption (drinks/week) | numérica | 0 é valor válido | limite de domínio; mediana + StandardScaler | limpar + pipeline |
-| Smoking | binária | Yes/No | padronizar; moda + one-hot (drop if_binary) | limpar + pipeline |
-| Family History of Anxiety | binária | Yes/No | padronizar; moda + one-hot (drop if_binary) | limpar + pipeline |
-| Stress Level (1-10) | numérica | maior correlação com o alvo | limite 1–10; mediana + StandardScaler | limpar + pipeline |
-| Heart Rate (bpm) | numérica | sinal vital | limite 30–220; mediana + StandardScaler | limpar + pipeline |
-| Breathing Rate (breaths/min) | numérica | sinal vital | limite 4–60; mediana + StandardScaler | limpar + pipeline |
-| Sweating Level (1-5) | numérica (escala) | escala curta | limite 1–5; mediana + StandardScaler | limpar + pipeline |
-| Dizziness | binária | Yes/No | padronizar; moda + one-hot (drop if_binary) | limpar + pipeline |
-| Medication | binária | causalidade reversa | mantida e sinalizada; ablação na E3 | limpar + pipeline |
-| Therapy Sessions (per month) | numérica | r positiva forte; causalidade reversa | mantida e sinalizada; ablação na E3 | limpar + pipeline |
-| Recent Major Life Event | binária | Yes/No | padronizar; moda + one-hot (drop if_binary) | limpar + pipeline |
-| Diet Quality (1-10) | numérica | escala 1–10 | limite 1–10; mediana + StandardScaler | limpar + pipeline |
-| Anxiety Level (1-10) | alvo | contínuo; notas 8–10 raras | sem transformação; sem stratify; atenção às notas altas na E3 | — |
+| Age | numérica | r = −0,07 (fraca); skew 0,10 | limite de domínio (>120 vira NaN); mediana + StandardScaler | limpar + pipeline |
+| Gender | nominal (3) | 3 categorias equilibradas (2964/2934/2902) | padronizar texto; moda + one-hot, ignore | limpar + pipeline |
+| Occupation | nominal (13) | 13 profissões (644 a 721 linhas); média do alvo 3,73 a 4,26 | padronizar texto; moda + one-hot, ignore | limpar + pipeline |
+| Sleep Hours | numérica | r = −0,49; skew −0,24 | limite de domínio; mediana + StandardScaler | limpar + pipeline |
+| Physical Activity (hrs/week) | numérica | r = −0,24; skew 0,50 | limite de domínio; mediana + StandardScaler | limpar + pipeline |
+| Caffeine Intake (mg/day) | numérica | escala em centenas; r = 0,35; skew 0,32 | limite de domínio; mediana + StandardScaler | limpar + pipeline |
+| Alcohol Consumption (drinks/week) | numérica | 0 é valor válido; r = 0,10; skew −0,03 | limite de domínio; mediana + StandardScaler | limpar + pipeline |
+| Smoking | binária | Yes/No, ~53%/47% | padronizar para Yes/No; moda + one-hot (drop if_binary) | limpar + pipeline |
+| Family History of Anxiety | binária | Yes/No, ~53%/47% | padronizar para Yes/No; moda + one-hot (drop if_binary) | limpar + pipeline |
+| Stress Level (1-10) | numérica | maior correlação com o alvo (r = 0,67) | limite 1-10; mediana + StandardScaler | limpar + pipeline |
+| Heart Rate (bpm) | numérica | r = 0,19; skew −0,13 | limite 30-220; mediana + StandardScaler | limpar + pipeline |
+| Breathing Rate (breaths/min) | numérica | r = 0,15; skew −0,15 | limite 4-60; mediana + StandardScaler | limpar + pipeline |
+| Sweating Level (1-5) | numérica (escala) | r = 0,16; escala 1-5 | limite 1-5; mediana + StandardScaler | limpar + pipeline |
+| Dizziness | binária | Yes/No, ~52%/48% | padronizar para Yes/No; moda + one-hot (drop if_binary) | limpar + pipeline |
+| Medication | binária | ~52% Yes; causalidade reversa (consequência da ansiedade) | mantida e sinalizada; ablação na E3 | limpar + pipeline |
+| Therapy Sessions (per month) | numérica | r = 0,52; skew 1,05; causalidade reversa | mantida e sinalizada; ablação na E3; testar log1p na E3 | limpar + pipeline |
+| Recent Major Life Event | binária | Yes/No, ~51%/49% | padronizar para Yes/No; moda + one-hot (drop if_binary) | limpar + pipeline |
+| Diet Quality (1-10) | numérica | r = −0,22; escala 1-10 | limite 1-10; mediana + StandardScaler | limpar + pipeline |
+| Anxiety Level (1-10) | alvo | contínuo; notas 8-10 raras (9,0% do treino) | não é transformado; sem stratify; atenção a notas altas na E3 | — |
 
 ### Decisões gerais
 
 - **Sem dados faltantes, mas o pipeline imputa mesmo assim.** O usuário da API pode deixar campo vazio; `SimpleImputer` está em todos os caminhos.
 - **Sem `dropna()`, sem `get_dummies`.** Tudo que aprende dos dados (imputer, scaler, encoder) está dentro do `Pipeline` e é treinado só no `X_treino`.
-- **Alvo contínuo:** não há `stratify` nem `class_weight`. O desbalanceamento das notas altas fica registrado para a E3.
+- **Alvo contínuo:** não há `stratify` nem `class_weight`. As notas 8 a 10 são 9,0% do treino, com um degrau após a nota 7 (1,1%, contra ~3% em cada uma de 8, 9 e 10); o tratamento dessas notas fica para a E3.
 - **Nenhuma coluna vaza o alvo.** `Therapy Sessions` e `Medication` são consequência da ansiedade, não causa: ficam no modelo, sinalizadas, e a E3 repete o experimento sem elas.
 
 ### Teste de sanidade (CV 5 no treino)
 
-Preencher com os números da última célula da seção 6 do notebook (B0, B2 e pipeline linear: MAE, RMSE, R²).
+Sem NaN depois do transform (8.800 linhas × 32 colunas), roda em cross-validation sem erro de categoria e fica acima do baseline: o pipeline linear reduz o MAE em 0,28 ponto frente ao B2 (1,178 → 0,901). Os baselines foram refeitos na mesma régua (CV no treino); os números da E1 foram medidos no teste.
 
 | Modelo | MAE | RMSE | R² |
 |---|---|---|---|
-| B0 — média do treino | _preencher_ | _preencher_ | _preencher_ |
-| B2 — linear só com estresse | _preencher_ | _preencher_ | _preencher_ |
-| Pipeline — regressão linear | _preencher_ | _preencher_ | _preencher_ |
+| B0 — média do treino | 1,569 | 2,115 | 0,000 |
+| B2 — linear só com estresse | 1,178 | 1,570 | 0,448 |
+| Pipeline — regressão linear | 0,901 | 1,126 | 0,716 |
+
+O MAE do pipeline linear em CV (0,901) fica próximo ao da regressão linear completa da E1 no teste (0,892), o que indica que o pré-processador não perde informação. O gradient boosting da E1 (0,818) é a referência a bater na E3.
