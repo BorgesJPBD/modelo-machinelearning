@@ -1,7 +1,7 @@
 # Respira
 
 Estimativa do nível de ansiedade a partir de hábitos de vida e sinais vitais.
-Entrega 1 · Machine Learning · Projeto Final
+Entregas 1 e 2 · Machine Learning · Projeto Final
 
 > ⚠️ Projeto acadêmico com dados sintéticos. Não é instrumento de triagem clínica nem diagnóstico.
 
@@ -131,3 +131,60 @@ jupyter notebook notebooks/00_primeiro_contato.ipynb
 No Colab não precisa instalar nada: a célula de carga abre o botão de upload.
 
 **Fonte:** natezhang123. *Social Anxiety Dataset*. Kaggle. Licença CC0 1.0. Acesso em 26/10/2026.
+
+---
+
+## 7. Entrega 2 — Dados prontos
+
+**Notebook:** `notebooks/01_eda.ipynb` (roda de cima a baixo; carga igual à da E1).
+
+### O que a E2 entrega
+
+| Item | Onde |
+|---|---|
+| EDA com as cinco perguntas, cada gráfico com Observação e Decisão | `notebooks/01_eda.ipynb`, seção 4 |
+| Função `limpar(df)` (só linha a linha, antes do split) | `notebooks/01_eda.ipynb`, seção 2 |
+| Split 80/20, `random_state=42` (o mesmo da E1); teste trancado | seção 3 |
+| Pré-processador `ColumnTransformer` | seção 5 |
+| Teste de sanidade (sem NaN, cross-val 5, comparação com baseline) | seção 6 |
+
+### Tabela de decisões
+
+| Coluna | Tipo | Achado na EDA | Decisão | Onde |
+|---|---|---|---|---|
+| Age | numérica | sem nulos; dentro de 0–120 | >120 vira NaN; mediana + StandardScaler | limpar + pipeline |
+| Gender | nominal (3) | Male, Female, Other | padronizar texto; moda + one-hot, ignore | limpar + pipeline |
+| Occupation | nominal (13) | 13 profissões | padronizar texto; moda + one-hot, ignore | limpar + pipeline |
+| Sleep Hours | numérica | r negativa com o alvo | limite 0–24; mediana + StandardScaler | limpar + pipeline |
+| Physical Activity (hrs/week) | numérica | r negativa fraca | limite de domínio; mediana + StandardScaler | limpar + pipeline |
+| Caffeine Intake (mg/day) | numérica | escala em centenas; r positiva | limite de domínio; mediana + StandardScaler | limpar + pipeline |
+| Alcohol Consumption (drinks/week) | numérica | 0 é valor válido | limite de domínio; mediana + StandardScaler | limpar + pipeline |
+| Smoking | binária | Yes/No | padronizar; moda + one-hot (drop if_binary) | limpar + pipeline |
+| Family History of Anxiety | binária | Yes/No | padronizar; moda + one-hot (drop if_binary) | limpar + pipeline |
+| Stress Level (1-10) | numérica | maior correlação com o alvo | limite 1–10; mediana + StandardScaler | limpar + pipeline |
+| Heart Rate (bpm) | numérica | sinal vital | limite 30–220; mediana + StandardScaler | limpar + pipeline |
+| Breathing Rate (breaths/min) | numérica | sinal vital | limite 4–60; mediana + StandardScaler | limpar + pipeline |
+| Sweating Level (1-5) | numérica (escala) | escala curta | limite 1–5; mediana + StandardScaler | limpar + pipeline |
+| Dizziness | binária | Yes/No | padronizar; moda + one-hot (drop if_binary) | limpar + pipeline |
+| Medication | binária | causalidade reversa | mantida e sinalizada; ablação na E3 | limpar + pipeline |
+| Therapy Sessions (per month) | numérica | r positiva forte; causalidade reversa | mantida e sinalizada; ablação na E3 | limpar + pipeline |
+| Recent Major Life Event | binária | Yes/No | padronizar; moda + one-hot (drop if_binary) | limpar + pipeline |
+| Diet Quality (1-10) | numérica | escala 1–10 | limite 1–10; mediana + StandardScaler | limpar + pipeline |
+| Anxiety Level (1-10) | alvo | contínuo; notas 8–10 raras | sem transformação; sem stratify; atenção às notas altas na E3 | — |
+
+### Decisões gerais
+
+- **Sem dados faltantes, mas o pipeline imputa mesmo assim.** O usuário da API pode deixar campo vazio; `SimpleImputer` está em todos os caminhos.
+- **Sem `dropna()`, sem `get_dummies`.** Tudo que aprende dos dados (imputer, scaler, encoder) está dentro do `Pipeline` e é treinado só no `X_treino`.
+- **Alvo contínuo:** não há `stratify` nem `class_weight`. O desbalanceamento das notas altas fica registrado para a E3.
+- **Nenhuma coluna vaza o alvo.** `Therapy Sessions` e `Medication` são consequência da ansiedade, não causa: ficam no modelo, sinalizadas, e a E3 repete o experimento sem elas.
+
+### Teste de sanidade (CV 5 no treino)
+
+Preencher com os números da última célula da seção 6 do notebook (B0, B2 e pipeline linear: MAE, RMSE, R²).
+
+| Modelo | MAE | RMSE | R² |
+|---|---|---|---|
+| B0 — média do treino | _preencher_ | _preencher_ | _preencher_ |
+| B2 — linear só com estresse | _preencher_ | _preencher_ | _preencher_ |
+| Pipeline — regressão linear | _preencher_ | _preencher_ | _preencher_ |
