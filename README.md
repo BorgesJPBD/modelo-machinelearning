@@ -123,10 +123,22 @@ tonturas, terapia, remédio                               aviso: procure um prof
 ## Como rodar
 
 ```bash
-pip install pandas numpy matplotlib scikit-learn
-# coloque enhanced_anxiety_dataset.csv em data/raw/
+# 1. ambiente virtual
+python -m venv .venv
+.venv\Scripts\activate          # Windows  (Linux/Mac: source .venv/bin/activate)
+
+# 2. dependências
+pip install -r requirements.txt
+
+# 3. dados: baixa o CSV do Kaggle para data/raw/
+python baixar_dados.py
+
+# 4. notebooks (no VS Code: selecione o kernel do .venv e use "Executar Tudo")
 jupyter notebook notebooks/00_primeiro_contato.ipynb
+jupyter notebook notebooks/01_eda.ipynb
 ```
+
+Se o download pelo `kagglehub` falhar, baixe o `.zip` em https://www.kaggle.com/datasets/natezhang123/social-anxiety-dataset e coloque `enhanced_anxiety_dataset.csv` em `data/raw/`.
 
 No Colab não precisa instalar nada: a célula de carga abre o botão de upload.
 
